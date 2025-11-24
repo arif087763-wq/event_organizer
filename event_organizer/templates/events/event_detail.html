@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }} | Digital Event Organizer{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-8 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h1 class="h3 fw-bold mb-3">{{ event.title }}</h1>
+
+        <div class="mb-3">
+          <p class="mb-1"><strong>Waktu:</strong><br>
+            {{ event.start_datetime|date:"d M Y, H:i" }} –
+            {{ event.end_datetime|date:"d M Y, H:i" }}
+          </p>
+          <p class="mb-1"><strong>Lokasi:</strong> {{ event.location }}</p>
+          <p class="mb-1">
+            <strong>Harga:</strong>
+            {% if event.is_paid %}
+              Rp {{ event.price|floatformat:0 }}
+            {% else %}
+              <span class="badge bg-success">Gratis</span>
+            {% endif %}
+          </p>
+        </div>
+
+        <hr>
+
+        <h5 class="fw-semibold">Deskripsi Event</h5>
+        <p class="mb-0">{{ event.description|linebreaks }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <h5 class="fw-semibold mb-3">Status Peserta</h5>
+
+        {% if user.is_authenticated %}
+          {% if user_registration %}
+            <p class="mb-1">Anda sudah terdaftar.</p>
+            <p class="mb-3">
+              Status registrasi:
+              <span class="badge bg-warning text-dark">{{ user_registration.status }}</span>
+            </p>
+
+            {% if event.is_paid %}
+                {% if user_registration.payment and user_registration.payment.is_confirmed %}
+                    <a href="{% url 'events:event_dashboard_participant' slug=event.slug %}"
+                       class="btn btn-success w-100 mb-2">
+                        Lihat tiket &amp; QR
+                    </a>
+                {% else %}
+                    <a href="{% url 'events:event_payment' slug=event.slug %}"
+                       class="btn btn-primary w-100 mb-2">
+                        Lanjut ke pembayaran
+                    </a>
+                    <small class="text-muted d-block">
+                      Setelah upload bukti pembayaran, tunggu konfirmasi admin.
+                    </small>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'events:event_dashboard_participant' slug=event.slug %}"
+                   class="btn btn-success w-100 mb-2">
+                    Buka dashboard peserta
+                </a>
+            {% endif %}
+
+          {% else %}
+            <form method="post" action="{% url 'events:event_register' slug=event.slug %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary w-100 mb-2">
+                Daftar Event
+              </button>
+            </form>
+          {% endif %}
+        {% else %}
+          <p class="mb-2">Silakan login untuk mendaftar event.</p>
+          <a href="/accounts/login/?next={{ request.path }}"
+             class="btn btn-outline-primary w-100">
+            Login
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <a href="{% url 'events:event_list' %}" class="btn btn-link w-100">
+      &larr; Kembali ke daftar event
+    </a>
+  </div>
+</div>
+{% endblock %}

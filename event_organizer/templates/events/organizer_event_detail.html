@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Peserta - {{ event.title }}{% endblock %}
+
+{% block content %}
+<h1 class="h4 fw-bold mb-3">Peserta Event: {{ event.title }}</h1>
+
+<p class="text-muted mb-3">
+  Waktu:
+  {{ event.start_datetime|date:"d M Y, H:i" }} –
+  {{ event.end_datetime|date:"d M Y, H:i" }}<br>
+  Lokasi: {{ event.location }}
+</p>
+
+{% if registrations %}
+  <div class="table-responsive">
+    <table class="table table-sm table-striped align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Nama Peserta</th>
+          <th>Username</th>
+          <th>Status Registrasi</th>
+          <th>Status Pembayaran</th>
+          <th>Checked In</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reg in registrations %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ reg.participant.get_full_name|default:reg.participant.username }}</td>
+            <td>{{ reg.participant.username }}</td>
+            <td>{{ reg.status }}</td>
+            <td>
+              {% if reg.payment %}
+                {% if reg.payment.is_confirmed %}
+                  <span class="badge bg-success">Paid</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">Pending</span>
+                {% endif %}
+              {% else %}
+                <span class="badge bg-secondary">Belum bayar</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if reg.checked_in %}
+                <span class="badge bg-success">Sudah</span>
+              {% else %}
+                <span class="badge bg-secondary">Belum</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="alert alert-info">
+    Belum ada peserta yang mendaftar.
+  </div>
+{% endif %}
+
+<a href="{% url 'events:organizer_dashboard' %}" class="btn btn-link mt-3">
+  &larr; Kembali ke dashboard organizer
+</a>
+{% endblock %}

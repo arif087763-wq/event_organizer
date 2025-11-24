@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Peserta - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <h1 class="h4 fw-bold mb-3">Dashboard Peserta - {{ event.title }}</h1>
+
+        {% if registration %}
+          <p class="mb-1">
+            Status registrasi:
+            <span class="badge bg-info text-dark">{{ registration.status }}</span>
+          </p>
+
+          {% if registration.payment %}
+            <p class="mb-3">
+              Status pembayaran:
+              {% if registration.payment.is_confirmed %}
+                <span class="badge bg-success">Terkonfirmasi</span>
+              {% else %}
+                <span class="badge bg-warning text-dark">Menunggu konfirmasi admin</span>
+              {% endif %}
+            </p>
+          {% endif %}
+
+          {% if registration.ticket %}
+            <hr>
+            <h5 class="fw-semibold mb-2">Tiket Anda</h5>
+            <p>Kode tiket: <code>{{ registration.ticket.ticket_code }}</code></p>
+            {% if registration.ticket.qr_image %}
+              <div class="border rounded p-3 d-inline-block">
+                <img src="{{ registration.ticket.qr_image.url }}"
+                     alt="QR Code Ticket"
+                     class="img-fluid">
+              </div>
+              <p class="text-muted mt-2">
+                Tunjukkan QR code ini kepada panitia saat check-in.
+              </p>
+            {% endif %}
+          {% else %}
+            <div class="alert alert-info mt-3">
+              Tiket akan dibuat setelah pembayaran dikonfirmasi admin.
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="alert alert-warning">
+            Anda belum terdaftar pada event ini.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <a href="{% url 'events:event_detail' slug=event.slug %}">&larr; Kembali ke detail event</a>
+  </div>
+</div>
+{% endblock %}
